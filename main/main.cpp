@@ -1,4 +1,4 @@
-#include<iostream>
+﻿#include<iostream>
 #include<SDL2/SDL.h>
 #include<cmath>
 #include"headers/triangle.h"
@@ -36,14 +36,14 @@ class scene
     {
         std::stringstream stmt(line);
         char type;
-        if (line[0] == 'v')
+        if (line.size() >= 2 && line[0] == 'v' && line[1] == ' ')
         {
             std::array<float, 4> m = {0.0f, 0.0f, 0.0f, 1.0f};
             stmt >> type >> m[0] >> m[1] >> m[2]; 
             m[2]=m[2]+5;
             vertices.push_back(m);
         }
-        else if (line[0] == 'f')
+        else if (line.size() >= 2 && line[0] == 'f' && line[1] == ' ')
         {
             std::array<int, 3> m = {0, 0, 0};
             stmt >> type >> m[0] >> m[1] >> m[2];
@@ -53,30 +53,33 @@ class scene
     }
     return true;
 }
-    void populate()
+void populate()
+{
+    t = new triangle[indices_num];
+    for(int i=0;i<indices_num;i++)
     {
-        t = new triangle[indices_num];
-        for(int i=0;i<indices_num;i++)
+        if(indices[i][0]-1 >= vertices.size() || indices[i][1]-1 >= vertices.size() || indices[i][2]-1 >= vertices.size())
         {
-            float vertex1[]={vertices[indices[i][0]-1][0],vertices[indices[i][0]-1][1],vertices[indices[i][0]-1][2]};
-            float vertex2[]={vertices[indices[i][1]-1][0],vertices[indices[i][1]-1][1],vertices[indices[i][1]-1][2]};
-            float vertex3[]={vertices[indices[i][2]-1][0],vertices[indices[i][2]-1][1],vertices[indices[i][2]-1][2]};
-            t[i].get_data(vertex1,vertex2,vertex3,255,0,0);
-            trianglestodraw.push_back(t[i]);
-
+            std::cerr << "Bad index at face " << i << ": " << indices[i][0] << " " << indices[i][1] << " " << indices[i][2] << " (vertices size: " << vertices.size() << ")" << std::endl;
+            continue;
         }
-        delete[] t;
-        t=nullptr;
+        float vertex1[]={vertices[indices[i][0]-1][0],vertices[indices[i][0]-1][1],vertices[indices[i][0]-1][2]};
+        float vertex2[]={vertices[indices[i][1]-1][0],vertices[indices[i][1]-1][1],vertices[indices[i][1]-1][2]};
+        float vertex3[]={vertices[indices[i][2]-1][0],vertices[indices[i][2]-1][1],vertices[indices[i][2]-1][2]};
+        t[i].get_data(vertex1,vertex2,vertex3,255,0,0);
+        trianglestodraw.push_back(t[i]);
     }
-
+    delete[] t;
+    t=nullptr;
+}
     void render_scene(SDL_Renderer * renderer)
     {
-        /*sort(trianglestodraw.begin(),trianglestodraw.end(),[](triangle &t1,triangle &t2)
-            {
-                float z1=(t1.p1.p[2]+t1.p2.p[2]+t1.p3.p[2])/3.0f;
-                float z2=(t2.p1.p[2]+t2.p2.p[2]+t2.p3.p[2])/3.0f;
-                return z1>z2;
-            });*/
+        // sort(trianglestodraw.begin(),trianglestodraw.end(),[](triangle &t1,triangle &t2)
+        //     {
+        //         float z1=(t1.p1.p[2]+t1.p2.p[2]+t1.p3.p[2])/3.0f;
+        //         float z2=(t2.p1.p[2]+t2.p2.p[2]+t2.p3.p[2])/3.0f;
+        //         return z1>z2;
+        //     });
         for(int i=0;i<trianglestodraw.size();i++)
         {
             trianglestodraw[i].draw_triangle(renderer);
@@ -148,7 +151,7 @@ class scene
         cz += trianglestodraw[i].p1.p[2]+trianglestodraw[i].p2.p[2]+trianglestodraw[i].p3.p[2];
     }
     
-    int vertexCount = trianglestodraw.size()*3;
+    float vertexCount = (float)trianglestodraw.size()*3.0f;
     cx /= vertexCount;
     cy /= vertexCount;
     cz /= vertexCount;
@@ -164,7 +167,7 @@ class scene
 void render(SDL_Renderer* renderer)
 {
     scene scene;
-    scene.load_object_from_file("teapot.obj");
+    scene.load_object_from_file("mountains.obj");
     scene.populate();
     scene.scene_centriod();
     bool quit = false;

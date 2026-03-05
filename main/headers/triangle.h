@@ -168,27 +168,26 @@ class triangle:public shape
         float screen_x3 = p3_proj.p[0]*SCENE_LENGTH / 2  + SCENE_LENGTH / 2;
         float screen_y3 = p3_proj.p[1]*SCENE_WIDTH / 2  + SCENE_WIDTH / 2;
 
-       /*vector lighting_dir(0,0,-1);
-        lighting_dir.normalize(lighting_dir.mag());
-        float dot_pro=lighting_dir.dot_product(normal);
-        /*if(dot_pro<0)
-        {
-            dot_pro=0;
-        }*/
-       float dot_pro=1;
+vector lighting_dir(0,1,-1);
+lighting_dir.normalize(lighting_dir.mag());
+float dot_pro = lighting_dir.dot_product(normal);
+if(dot_pro < 0) dot_pro = -dot_pro;
+float ambient = 0.3f;
+dot_pro = ambient + (1.0f - ambient) * dot_pro;
+// float dot_pro=1;
 
 
-/*const std::vector< SDL_Vertex > verts =
+const std::vector< SDL_Vertex > verts =
     {
         { SDL_FPoint{ screen_x1, screen_y1 }, SDL_Color{ static_cast<Uint8>(255*dot_pro), 0, 0, 255 }, SDL_FPoint{ 0 }, },
         { SDL_FPoint{ screen_x2, screen_y2 }, SDL_Color{ static_cast<Uint8>(255*dot_pro), 0, 0, 255 }, SDL_FPoint{ 0 }, },
         { SDL_FPoint{ screen_x3, screen_y3 }, SDL_Color{ static_cast<Uint8>(255*dot_pro), 0, 0, 255 }, SDL_FPoint{ 0 }, },
     };
      SDL_RenderGeometry( renderer, nullptr, verts.data(), verts.size(), nullptr, 0 );
-        */SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderDrawLine(renderer, screen_x1, screen_y1, screen_x2, screen_y2);
-        SDL_RenderDrawLine(renderer, screen_x2, screen_y2, screen_x3, screen_y3);
-        SDL_RenderDrawLine(renderer, screen_x3, screen_y3, screen_x1, screen_y1);
+    //     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    //     SDL_RenderDrawLine(renderer, screen_x1, screen_y1, screen_x2, screen_y2);
+    //     SDL_RenderDrawLine(renderer, screen_x2, screen_y2, screen_x3, screen_y3);
+    //     SDL_RenderDrawLine(renderer, screen_x3, screen_y3, screen_x1, screen_y1); 
     }
 }
 
